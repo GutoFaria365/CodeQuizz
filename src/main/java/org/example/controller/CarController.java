@@ -1,64 +1,58 @@
 package org.example.controller;
 
-import academy.mindswap.rentacar.dto.*;
-import academy.mindswap.rentacar.service.CarService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
 
+import org.example.dto.CarCreatedDto;
+import org.example.dto.CarDto;
+import org.example.dto.CarUpdateDto;
+import org.example.service.CarService;
+import org.jboss.resteasy.reactive.MultipartForm;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
-@RestController
-@RequestMapping("/car")
+@Path("/car")
 public class CarController {
 
     private CarService carService;
 
-    @Autowired
+    @Inject
     public CarController(CarService carService) {
         this.carService = carService;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<CarDto>> getAllCars() {
+    @GET
+    @Path("/all")
+    public Response getAllCars() {
+
         List<CarDto> cars = carService.getAllCars();
-        return new ResponseEntity<>(cars, HttpStatus.OK);
+        return Response.ok(cars).build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CarDto> getCarById(@PathVariable Long id) {
+    @GET
+    @Path("/{id}")
+    public Response getCarById(@PathParam("id") Long id) {
         CarDto carDto = carService.getCarById(id);
-        return new ResponseEntity<>(carDto, HttpStatus.CREATED);
+        return Response.ok(carDto).build();
     }
 
-    @PostMapping
-    public ResponseEntity<CarDto> createCar(@Valid @RequestBody CarCreatedDto carCreatedDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError error : fieldErrors) {
-                System.out.println(error.getObjectName() + " - " + error.getDefaultMessage());
-            }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @POST
+    public Response createCar(@Valid @MultipartForm CarCreatedDto carCreatedDto) {
+
         CarDto savedCar = carService.createCar(carCreatedDto);
-        return new ResponseEntity<>(savedCar, HttpStatus.OK);
+        return Response.ok(carCreatedDto).build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CarDto> updateCar(@PathVariable Long id, @Valid @RequestBody CarUpdateDto carUpdateDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError error : fieldErrors) {
-                System.out.println(error.getObjectName() + " - " + error.getDefaultMessage());
-            }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @POST
+    @Path("/{id}")
+    public Response updateCar(@PathParam("id") Long id, @Valid @MultipartForm CarUpdateDto carUpdateDto) {
 
         CarDto updatedCar = carService.updateCar(id, carUpdateDto);
-        return new ResponseEntity<>(updatedCar, HttpStatus.OK);
+        return Response.ok(carUpdateDto).build();
     }
 }

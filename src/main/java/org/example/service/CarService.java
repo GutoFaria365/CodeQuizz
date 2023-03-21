@@ -1,10 +1,12 @@
 package org.example.service;
 
-import academy.mindswap.rentacar.dto.CarCreatedDto;
-import academy.mindswap.rentacar.dto.CarDto;
-import academy.mindswap.rentacar.dto.CarUpdateDto;
+
+import org.example.dto.CarCreatedDto;
+import org.example.dto.CarDto;
+import org.example.dto.CarUpdateDto;
 
 import java.util.List;
+
 
 public interface CarService {
     CarDto createCar(CarCreatedDto carDto);

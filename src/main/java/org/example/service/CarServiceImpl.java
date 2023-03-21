@@ -1,29 +1,29 @@
 package org.example.service;
 
-import academy.mindswap.rentacar.dto.CarCreatedDto;
-import academy.mindswap.rentacar.dto.CarDto;
-import academy.mindswap.rentacar.dto.CarUpdateDto;
-import academy.mindswap.rentacar.exceptions.CarNotFoundException;
-import academy.mindswap.rentacar.mapper.CarMapper;
-import academy.mindswap.rentacar.model.Car;
-import academy.mindswap.rentacar.repository.CarRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.example.dto.CarCreatedDto;
+import org.example.dto.CarDto;
+import org.example.dto.CarUpdateDto;
+import org.example.exceptions.CarNotFoundException;
+import org.example.mapper.CarMapper;
+import org.example.model.Car;
+import org.example.repository.CarRepository;
 
-import java.util.ArrayList;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Service
+@ApplicationScoped
+@Transactional
 public class CarServiceImpl implements CarService {
 
     CarMapper carMapper;
     private CarRepository carRepository;
 
 
-    @Autowired
+    @Inject
     public CarServiceImpl(CarRepository carRepository, CarMapper carMapper) {
         this.carRepository = carRepository;
         this.carMapper = carMapper;
@@ -32,39 +32,30 @@ public class CarServiceImpl implements CarService {
     @Override
     public CarDto createCar(CarCreatedDto carCreatedDto) {
         Car savedCar = carMapper.fromCarCreatedDtoToCarEntity(carCreatedDto);
-        savedCar = carRepository.save(savedCar);
+        carRepository.persistAndFlush(savedCar);
         return carMapper.fromCarEntityToCarDto(savedCar);
     }
 
-/*    @Override
-    public CarDto getCarById(Long carId) {
-        Car car = carRepository.getReferenceById(carId);
-        return carMapper.fromCarEntityToCarDto(car);
-    }*/
-
     @Override
     public CarDto getCarById(Long carId) {
-        Optional<Car> optionalCar = carRepository.findById(carId);
+        Optional<Car> optionalCar = Optional.ofNullable(carRepository.findById(carId));
         return optionalCar.map(carMapper::fromCarEntityToCarDto).orElseThrow(() -> new CarNotFoundException());
     }
 
     @Override
     public List<CarDto> getAllCars() {
-        List<Car> cars = carRepository.findAll();
-        List<CarDto> carDtos = new ArrayList<>();
-
-        for (Car car :
-                cars) {
-            carDtos.add(carMapper.fromCarEntityToCarDto(car));
-        }
-        return carDtos;
+        List<Car> cars = carRepository.listAll();
+        return cars.stream()
+                .map(carMapper::fromCarEntityToCarDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public CarDto updateCar(Long carId, CarUpdateDto carUpdateDto) {
-        Car carToUpdate = carRepository.findById(carId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No car found with ID: " + carId));
-
+        Car carToUpdate = carRepository.findById(carId);
+        if (carToUpdate == null) {
+            throw new CarNotFoundException();
+        }
         if (carUpdateDto.getBrand() != null) {
             carToUpdate.setBrand(carUpdateDto.getBrand());
         }
@@ -77,8 +68,7 @@ public class CarServiceImpl implements CarService {
             carToUpdate.setPricePerDay(carUpdateDto.getPricePerDay());
         }
 
-        Car updatedCar = carRepository.save(carToUpdate);
-        CarDto updatedCarDto = carMapper.fromCarEntityToCarDto(updatedCar);
-        return updatedCarDto;
+        carRepository.persistAndFlush(carToUpdate);
+        return carMapper.fromCarEntityToCarDto(carToUpdate);
     }
 }

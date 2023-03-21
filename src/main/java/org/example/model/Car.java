@@ -1,11 +1,15 @@
 package org.example.model;
 
-import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.UUID;
+
 
 @Getter
 @Setter
@@ -20,8 +24,7 @@ import java.util.List;
 public class Car {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private UUID id;
 
     @Column(nullable = false)
     private String brand;
@@ -34,8 +37,4 @@ public class Car {
 
     @Column(nullable = false)
     private boolean deleted = Boolean.FALSE;
-
-    @OneToMany(mappedBy = "car", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    private List<Rental> rentals = new ArrayList<>();
-
 }
