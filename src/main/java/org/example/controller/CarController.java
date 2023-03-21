@@ -5,9 +5,7 @@ import org.example.dto.CarCreatedDto;
 import org.example.dto.CarDto;
 import org.example.dto.CarUpdateDto;
 import org.example.service.CarService;
-import org.jboss.resteasy.reactive.MultipartForm;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -21,7 +19,6 @@ public class CarController {
 
     private CarService carService;
 
-    @Inject
     public CarController(CarService carService) {
         this.carService = carService;
     }
@@ -42,7 +39,7 @@ public class CarController {
     }
 
     @POST
-    public Response createCar(@Valid @MultipartForm CarCreatedDto carCreatedDto) {
+    public Response createCar(@Valid CarCreatedDto carCreatedDto) {
 
         CarDto savedCar = carService.createCar(carCreatedDto);
         return Response.ok(carCreatedDto).build();
@@ -50,7 +47,7 @@ public class CarController {
 
     @POST
     @Path("/{id}")
-    public Response updateCar(@PathParam("id") Long id, @Valid @MultipartForm CarUpdateDto carUpdateDto) {
+    public Response updateCar(@PathParam("id") Long id, @Valid CarUpdateDto carUpdateDto) {
 
         CarDto updatedCar = carService.updateCar(id, carUpdateDto);
         return Response.ok(carUpdateDto).build();

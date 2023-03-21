@@ -6,8 +6,9 @@ import org.example.dto.CarDto;
 import org.example.model.Car;
 import org.mapstruct.Mapper;
 
+import javax.enterprise.context.ApplicationScoped;
 
-@Mapper(componentModel = "quarkus")
+@Mapper(componentModel = "cdi")
 public interface CarMapper {
 
     CarDto fromCarEntityToCarDto(Car car);
@@ -18,3 +19,4 @@ public interface CarMapper {
 
     Car fromCarCreatedDtoToCarEntity(CarCreatedDto carCreatedDto);
 }
+

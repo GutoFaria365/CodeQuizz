@@ -7,5 +7,5 @@ import org.example.model.Car;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public interface CarRepository extends PanacheRepository<Car> {
+public class CarRepository implements PanacheRepository<Car> {
 }

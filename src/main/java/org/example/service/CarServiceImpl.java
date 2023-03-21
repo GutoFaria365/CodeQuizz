@@ -9,40 +9,34 @@ import org.example.model.Car;
 import org.example.repository.CarRepository;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
 public class CarServiceImpl implements CarService {
 
     CarMapper carMapper;
+
     private CarRepository carRepository;
 
-
-    @Inject
     public CarServiceImpl(CarRepository carRepository, CarMapper carMapper) {
         this.carRepository = carRepository;
         this.carMapper = carMapper;
     }
 
-    @Override
     public CarDto createCar(CarCreatedDto carCreatedDto) {
         Car savedCar = carMapper.fromCarCreatedDtoToCarEntity(carCreatedDto);
         carRepository.persistAndFlush(savedCar);
         return carMapper.fromCarEntityToCarDto(savedCar);
     }
 
-    @Override
     public CarDto getCarById(Long carId) {
         Optional<Car> optionalCar = Optional.ofNullable(carRepository.findById(carId));
         return optionalCar.map(carMapper::fromCarEntityToCarDto).orElseThrow(() -> new CarNotFoundException());
     }
 
-    @Override
     public List<CarDto> getAllCars() {
         List<Car> cars = carRepository.listAll();
         return cars.stream()
@@ -50,7 +44,6 @@ public class CarServiceImpl implements CarService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public CarDto updateCar(Long carId, CarUpdateDto carUpdateDto) {
         Car carToUpdate = carRepository.findById(carId);
         if (carToUpdate == null) {
